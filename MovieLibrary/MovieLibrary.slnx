@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="tests/MovieLibrary.DatabaseTests/MovieLibrary.DatabaseTests.csproj" />
+    <Project Path="tests/MovieLibrary.IntegrationTests/MovieLibrary.IntegrationTests.csproj" />
+    <Project Path="tests/MovieLibrary.UnitTests/MovieLibrary.UnitTests.csproj" />
+  </Folder>
+  <Project Path="src/MovieLibrary.Api/MovieLibrary.Api.csproj" />
+</Solution>
