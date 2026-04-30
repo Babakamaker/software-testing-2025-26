@@ -3,7 +3,7 @@ name: Branch Name Check
 on:
   push:
     branches-ignore:
-      - main
+      - master
 
 jobs:
   branch-name:

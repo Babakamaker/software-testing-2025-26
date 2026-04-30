@@ -3,7 +3,7 @@ name: Migration
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   validate-migrations:
