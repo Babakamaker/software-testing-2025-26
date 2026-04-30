@@ -1,0 +1,63 @@
+name: Migration
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-migrations:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: lectures
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d lectures"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: demo
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Check for pending model changes
+        run: dotnet ef migrations has-pending-model-changes --project src/Lectures.Api --startup-project src/Lectures.Api
+
+      - name: Apply migrations
+        env:
+          ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=lectures;Username=postgres;Password=postgres
+        run: dotnet ef database update --project src/Lectures.Api --startup-project src/Lectures.Api
+
+      - name: Generate idempotent SQL script
+        run: dotnet ef migrations script --idempotent --project src/Lectures.Api --startup-project src/Lectures.Api --output migrations.sql
+
+      - name: Upload migration script
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-sql
+          path: demo/migrations.sql
